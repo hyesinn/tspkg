@@ -1,2 +1,2 @@
-def test():
-  print('test')
+def ftest():
+  print('succeed')
