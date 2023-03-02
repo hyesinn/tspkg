@@ -15,7 +15,7 @@ def set_index(data:pd.DataFrame, date_col:str) -> pd.DataFrame:
     return data_
 
 @beartype
-def mk_tarin_mart(y:pd.DataFrame, x:pd.DataFrame = None, trend:bool = None, freq:int = None) -> pd.DataFrame:
+def mk_train_mart(y:pd.DataFrame, x:pd.DataFrame = None, trend:bool = None, freq:int = None) -> pd.DataFrame:
     # argument 확인
     # y 확인: 빈 데이터프레임인지 확인
     if y.empty:
@@ -62,7 +62,7 @@ def summary_model(fit_obj:LinearRegression) -> pd.DataFrame:
 @beartype
 def tslm(y:pd.DataFrame, x:pd.DataFrame = None, trend:bool = None, freq:int = None) -> LinearRegression:
     # step1. tslm 학습 마트 생성
-    train_mart = mk_tarin_mart(y=y, x=x, trend=trend, freq=freq)
+    train_mart = mk_train_mart(y=y, x=x, trend=trend, freq=freq)
     
     # step2. fitting
     fit_obj = fit(x=train_mart, y=y)
@@ -108,11 +108,11 @@ def predict(fit_obj:LinearRegression, train_mart:pd.DataFrame, new_data:pd.DataF
 
 
 if __name__ == '__main__':
-    raw = pd.read_csv('https://raw.githubusercontent.com/hyesinn/tspkg/main/Data/aus_production.csv')
-    data = set_index(raw, 'Quarter')
-    train_data = data[data.index < '2009-01-01']
-    test_data = data[data.index >= '2009-01-01']
-    trian_mart = mk_tarin_mart(y=train_data[['Beer']], x=train_data[['Cement']], trend=True, freq=4)
-    tslm_model = tslm(y=train_data[['Beer']], x=train_data[['Cement']], trend=True, freq=4)
-    pred = predict(fit_obj=tslm_model, train_mart=trian_mart, new_data = test_data[['Cement']], trend=True, freq=4)
-    print(pred)
+    # raw = pd.read_csv('https://raw.githubusercontent.com/hyesinn/tspkg/main/Data/aus_production.csv')
+    # data = set_index(raw, 'Quarter')
+    # train_data = data[data.index < '2009-01-01']
+    # test_data = data[data.index >= '2009-01-01']
+    # trian_mart = mk_train_mart(y=train_data[['Beer']], x=train_data[['Cement']], trend=True, freq=4)
+    # tslm_model = tslm(y=train_data[['Beer']], x=train_data[['Cement']], trend=True, freq=4)
+    # pred = predict(fit_obj=tslm_model, train_mart=trian_mart, new_data = test_data[['Cement']], trend=True, freq=4)
+    # print(pred)
