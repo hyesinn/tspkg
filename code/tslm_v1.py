@@ -2,6 +2,7 @@ import re
 import pandas as pd
 import numpy as np
 from beartype import beartype
+from typing import Union
 from sklearn.linear_model import LinearRegression
 
 def set_index(data:pd.DataFrame, date_col:str) -> pd.DataFrame:
@@ -15,7 +16,9 @@ def set_index(data:pd.DataFrame, date_col:str) -> pd.DataFrame:
     return data_
 
 @beartype
-def mk_train_mart(y:pd.DataFrame, x:pd.DataFrame = None, trend:bool = None, freq:int = None) -> pd.DataFrame:
+def mk_train_mart(y:pd.DataFrame, x:Union[pd.DataFrame, type(None)]=None, 
+                  trend:Union[bool, type(None)]=None, freq:Union[int, type(None)]=None) -> pd.DataFrame:
+    
     # argument 확인
     # y 확인: 빈 데이터프레임인지 확인
     if y.empty:
@@ -60,7 +63,9 @@ def summary_model(fit_obj:LinearRegression) -> pd.DataFrame:
     return summary.reset_index()
 
 @beartype
-def tslm(y:pd.DataFrame, x:pd.DataFrame = None, trend:bool = None, freq:int = None) -> LinearRegression:
+def tslm(y:pd.DataFrame, x:Union[pd.DataFrame, type(None)]=None, 
+         trend:Union[bool, type(None)]=None, freq:Union[int, type(None)]=None) -> LinearRegression:
+    
     # step1. tslm 학습 마트 생성
     train_mart = mk_train_mart(y=y, x=x, trend=trend, freq=freq)
     
@@ -70,8 +75,10 @@ def tslm(y:pd.DataFrame, x:pd.DataFrame = None, trend:bool = None, freq:int = No
     return fit_obj
 
 @beartype
-def predict(fit_obj:LinearRegression, train_mart:pd.DataFrame, new_data:pd.DataFrame = None, 
-            trend:bool = None, freq:int = None, h:int=None) -> np.ndarray:
+def predict(fit_obj:LinearRegression, train_mart:pd.DataFrame, new_data:Union[pd.DataFrame, 
+            type(None)]=None, trend:Union[bool, type(None)]=None, freq:Union[int, type(None)]=None, 
+            h:Union[int, type(None)]=None) -> np.ndarray:
+    
     # argument 확인
     # train_mart 확인: 빈 데이터프레임인지 확인
     if train_mart.empty:
@@ -81,8 +88,10 @@ def predict(fit_obj:LinearRegression, train_mart:pd.DataFrame, new_data:pd.DataF
     features = [f for f in fit_obj.feature_names_in_ if not re.match('(trend)|(^season_)', f)]
     
     if isinstance(new_data, pd.DataFrame):
-        if new_data.empty and len(features) !=0:
+        if new_data.empty and len(features) != 0:
             raise ValueError(f"'new_data' is empty.")
+        elif len(new_data) > 0 and len(features) == 0:
+            raise ValueError(f"'new_data' is not empty.")
     else:
         if len(features) !=0:
             raise ValueError(f"'new_data' is none.")
@@ -90,12 +99,12 @@ def predict(fit_obj:LinearRegression, train_mart:pd.DataFrame, new_data:pd.DataF
             raise ValueError("both 'new_data' and 'h' are None.")
     
     # 데이터 복사 및 생성
-    data_ = pd.DataFrame() if new_data.empty else new_data.copy()
+    data_ = pd.DataFrame() if type(new_data) == type(None) else new_data.copy()
     
     # trend 컬럼 생성
     if trend:
         last_trend = len(train_mart)
-        pred_count = h if new_data.empty else len(data_)
+        pred_count = h if type(new_data) == type(None) else len(data_)
         trend_values = map(lambda x: x + last_trend + 1, range(1, pred_count+1))
         data_['trend'] = list(trend_values)
         
@@ -108,11 +117,11 @@ def predict(fit_obj:LinearRegression, train_mart:pd.DataFrame, new_data:pd.DataF
 
 
 # if __name__ == '__main__':
-    # raw = pd.read_csv('https://raw.githubusercontent.com/hyesinn/tspkg/main/Data/aus_production.csv')
-    # data = set_index(raw, 'Quarter')
-    # train_data = data[data.index < '2009-01-01']
-    # test_data = data[data.index >= '2009-01-01']
-    # trian_mart = mk_train_mart(y=train_data[['Beer']], x=train_data[['Cement']], trend=True, freq=4)
-    # tslm_model = tslm(y=train_data[['Beer']], x=train_data[['Cement']], trend=True, freq=4)
-    # pred = predict(fit_obj=tslm_model, train_mart=trian_mart, new_data = test_data[['Cement']], trend=True, freq=4)
-    # print(pred)
+#     raw = pd.read_csv('https://raw.githubusercontent.com/hyesinn/tspkg/main/Data/aus_production.csv')
+#     data = set_index(raw, 'Quarter')
+#     train_data = data[data.index < '2009-01-01']
+#     test_data = data[data.index >= '2009-01-01']
+#     trian_mart = mk_train_mart(y=train_data[['Beer']], trend=True, freq=4)
+#     tslm_model = tslm(y=train_data[['Beer']], trend=True, freq=4)
+#     pred = predict(fit_obj=tslm_model, train_mart=trian_mart, trend=True, freq=4, h=20)
+#     print(pred)
