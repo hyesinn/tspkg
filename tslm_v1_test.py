@@ -115,8 +115,7 @@ def predict(fit_obj:LinearRegression, train_mart:pd.DataFrame, new_data:Union[pd
         data_ = pd.concat([data_, season_cols], axis=1).drop(columns=['season', 'season_1'])
     return fit_obj.predict(data_)
 
-
-#if __name__ == '__main__':
+# if __name__ == '__main__':
 #     raw = pd.read_csv('https://raw.githubusercontent.com/hyesinn/tspkg/main/Data/aus_production.csv')
 #     data = set_index(raw, 'Quarter')
 #     train_data = data[data.index < '2009-01-01']
