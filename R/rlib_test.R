@@ -10,17 +10,14 @@ library(forecast)
 #data <- read.csv("C:/Users/teakyun kim/Documents/GitHub/tspkg/Data/aus_production.csv", stringsAsFactors = FALSE)
 
 data$trend  <- seq(1,nrow(data))
-season      <- rep(1:info$trend_num,nrow(data)/info$trend_num+1)
+season      <- rep(1:info$season_num,nrow(data)/info$season_num+1)
 data$season <- as.factor(season[1:nrow(data)])
 
 
 if(info$features == "Trend"){
-  
-  
-  
+
   lm.fit <- lm(paste0(info$y,"~","trend"), data = data)
-  
-  
+
 }else if(info$features == "Season"){
   
   lm.fit <- lm(paste0(info$y,"~","season"), data = data)
